@@ -25,14 +25,26 @@ STRUCTURE:
 - Must be completable in 30 minutes
 - Questions should test exam-readiness with slightly tricky options`,
         fun: `WORKSHEET TYPE: Fun Activity Sheet
-PURPOSE: Learning through play and creativity. NOT a test format.  
+PURPOSE: Learning through PLAY and CREATIVITY. This is NOT a test, NOT a worksheet, NOT an exam.
+
+⛔ FORBIDDEN: Do NOT include fill-in-the-blanks, true/false, MCQs, one-line answers, match-the-following, or word meanings. These are BANNED in fun activities.
+
+✅ ONLY include these types of activities:
+- 🎨 DRAW activities: "Draw a [topic] and label its parts", "Draw your favorite [related item]", "Draw and color [scene from chapter]"
+- 🧩 PUZZLES: Word scramble (unscramble jumbled letters), crossword clues, word search grids (list 6-8 words arranged in a described grid), spot-the-difference descriptions
+- 🎯 QUIZ GAME format: Present it as a quiz show — "Round 1: Speed Round!" with quick fun questions, "Round 2: Picture Round!" etc.
+- 🎲 ODD ONE OUT: Give 4 items, child circles the one that doesn't belong (4-5 sets)
+- ✏️ CREATIVE WRITING: "Write 2 sentences about YOUR favorite [topic]", "If you were a [character], what would you do?"
+- 🎭 ROLE PLAY prompts: "Act out being a [topic character] and tell your friend about..."
+- 🧠 RIDDLES: 2-3 fun riddles where the answer relates to the chapter content
+- 🏆 CHALLENGE: "Can you name 5 [related things] in 1 minute?" speed challenges
+
 STRUCTURE:
-- Include word puzzles, unscramble letters, odd-one-out, connect-the-dots concept, crossword-style clues
-- Add creative tasks: "Draw and label", "Write a sentence about your favorite..."
-- Include a riddle or joke related to the chapter
-- Make it feel like a game, not homework
-- Total: 15 marks but questions should be engaging and playful
-- Use emojis in question text where appropriate`,
+- Make it feel like a FUN GAME PAGE from a children's activity book
+- Use emojis in section titles and questions
+- Keep it colorful and exciting in tone ("Amazing! Can you solve this puzzle? 🧩")
+- Total: 15 marks but the child should WANT to do this — it should feel like play, not work
+- No answer lines — activities should involve drawing, circling, or creative responses`,
     };
 
     const difficultyDescriptions = {
