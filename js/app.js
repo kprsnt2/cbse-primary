@@ -189,10 +189,11 @@ function renderWorksheet(data) {
 
 function renderSection(section, sectionIndex) {
     const sectionNum = toRoman(sectionIndex + 1);
+    const cleanTitle = stripLeadingNumber(section.title || 'Section');
     let html = `
     <div class="worksheet-section">
       <div class="worksheet-section-header">
-        <span class="worksheet-section-title">${sectionNum}. ${section.title || 'Section'}</span>
+        <span class="worksheet-section-title">${sectionNum}. ${cleanTitle}</span>
         <span class="worksheet-section-marks">${section.marks || ''}</span>
       </div>
   `;
@@ -231,7 +232,7 @@ function renderMCQ(questions) {
         .map(
             (q, i) => `
     <div class="worksheet-question">
-      <span class="q-number">${i + 1}.</span> ${q.question}
+      <span class="q-number">${i + 1}.</span> ${stripLeadingNumber(q.question)}
       ${q.options
                     ? `<div class="worksheet-mcq-options">
           ${q.options.map((opt, oi) => `<span>${String.fromCharCode(97 + oi)}) ${opt}</span>`).join('')}
@@ -267,7 +268,7 @@ function renderMatch(questions) {
         .map(
             (item, i) => `
     <div class="worksheet-question">
-      <span class="q-number">${i + 1}.</span> ${item.question || ''}
+      <span class="q-number">${i + 1}.</span> ${stripLeadingNumber(item.question || '')}
       <span class="worksheet-answer-line"></span>
     </div>
   `
@@ -281,7 +282,7 @@ function renderTrueFalse(questions) {
         .map(
             (q, i) => `
     <div class="worksheet-tf-item">
-      <span><span class="q-number">${i + 1}.</span> ${q.question}</span>
+      <span><span class="q-number">${i + 1}.</span> ${stripLeadingNumber(q.question)}</span>
       <span class="worksheet-tf-brackets">( __________ )</span>
     </div>
   `
@@ -295,7 +296,7 @@ function renderFillBlanks(questions) {
         .map(
             (q, i) => `
     <div class="worksheet-question">
-      <span class="q-number">${i + 1}.</span> ${q.question}
+      <span class="q-number">${i + 1}.</span> ${stripLeadingNumber(q.question)}
     </div>
   `
         )
@@ -320,7 +321,7 @@ function renderGenericQuestions(questions, type) {
         .map(
             (q, i) => `
     <div class="worksheet-question">
-      <span class="q-number">${i + 1}.</span> ${q.question}
+      <span class="q-number">${i + 1}.</span> ${stripLeadingNumber(q.question)}
       ${needsLines
                     ? `<div class="worksheet-answer-lines">
           <span class="worksheet-answer-line"></span>
@@ -356,6 +357,15 @@ function renderAnswerKey(sections) {
 function toRoman(num) {
     const romanNumerals = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'];
     return romanNumerals[num - 1] || num;
+}
+
+// Strip leading numbering that Gemini might add (e.g., "I. ", "1. ", "II. ", "1) ")
+function stripLeadingNumber(text) {
+    if (!text) return text;
+    // Remove leading Roman numerals: "I. ", "II. ", "III. ", "IV. ", etc.
+    // Remove leading digits: "1. ", "2. ", "1) ", "2) "
+    return text.replace(/^\s*(I{1,3}|IV|V|VI{0,3}|IX|X)\.\s*/i, '')
+        .replace(/^\s*\d+[.):]\s*/, '');
 }
 
 // ---------- Navigation ----------
