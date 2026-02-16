@@ -311,6 +311,14 @@ body::before {
   margin-bottom: 32px;
 }
 
+.step-indicator {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
 .step-number {
   display: inline-flex;
   align-items: center;
@@ -977,6 +985,36 @@ body::before {
   font-size: 0.9rem;
 }
 
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: var(--shadow-lg);
+  z-index: 1002;
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.toast.toast-visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
 /* --- Footer --- */
 .footer {
   text-align: center;
@@ -1082,5 +1120,9 @@ body::before {
 
   .worksheet-answer-key {
     page-break-before: always;
+  }
+
+  .toast {
+    display: none !important;
   }
 }

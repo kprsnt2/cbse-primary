@@ -1,40 +1,17 @@
 // Vercel Serverless Function - Gemini API Proxy
 // Handles worksheet generation requests
 
-export default async function handler(req, res) {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+const GEMINI_MODEL = 'gemini-1.5-flash';
+const REQUEST_TIMEOUT_MS = 60000;
+const MAX_PROMPT_LENGTH = 100000;
 
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Method not allowed' });
-    }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-        return res.status(500).json({ error: 'GEMINI_API_KEY not configured' });
-    }
-
-    try {
-        const { prompt } = req.body;
-
-        if (!prompt) {
-            return res.status(400).json({ error: 'Prompt is required' });
-        }
-
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-preview:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
+async function callGemini(apiKey, prompt, signal) {
+    return fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
                     contents: [
                         {
                             parts: [
@@ -70,16 +47,79 @@ export default async function handler(req, res) {
                         },
                     ],
                 }),
+            signal,
+        }
+    );
+}
+
+export default async function handler(req, res) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
+
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method not allowed' });
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        return res.status(500).json({ error: 'GEMINI_API_KEY not configured' });
+    }
+
+    try {
+        const { prompt } = req.body;
+
+        if (!prompt) {
+            return res.status(400).json({ error: 'Prompt is required' });
+        }
+
+        if (typeof prompt !== 'string' || prompt.length > MAX_PROMPT_LENGTH) {
+            return res.status(400).json({ error: `Prompt too long (max ${MAX_PROMPT_LENGTH} characters)` });
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+        let response;
+        try {
+            response = await callGemini(apiKey, prompt, controller.signal);
+        } catch (err) {
+            clearTimeout(timeoutId);
+            if (err.name === 'AbortError') {
+                return res.status(504).json({ error: 'Request timed out. Please try again.' });
             }
-        );
+            const isRetryable = err.code === 'ECONNRESET' || err.code === 'ETIMEDOUT' || err.code === 'ECONNREFUSED';
+            if (isRetryable) {
+                response = await callGemini(apiKey, prompt, new AbortController().signal);
+            } else {
+                throw err;
+            }
+        }
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Gemini API error:', errorText);
-            return res.status(response.status).json({
-                error: `Gemini API error: ${response.status}`,
-                details: errorText
-            });
+            const is5xx = response.status >= 500;
+            if (is5xx) {
+                const retryController = new AbortController();
+                const retryTimeoutId = setTimeout(() => retryController.abort(), REQUEST_TIMEOUT_MS);
+                try {
+                    response = await callGemini(apiKey, prompt, retryController.signal);
+                } finally {
+                    clearTimeout(retryTimeoutId);
+                }
+            }
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Gemini API error:', errorText);
+                return res.status(response.status).json({
+                    error: `Gemini API error: ${response.status}`,
+                    details: errorText
+                });
+            }
         }
 
         const data = await response.json();

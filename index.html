@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn btn-icon" id="themeToggle" title="Toggle theme">🌙</button>
+        <button class="btn btn-icon" id="themeToggle" title="Toggle theme" aria-label="Toggle dark/light theme">🌙</button>
       </div>
     </div>
   </header>
@@ -30,8 +30,9 @@
   <!-- Main App -->
   <main class="main">
     <!-- Step 1: Subject Selection -->
-    <section class="step step-active" id="stepSubjects">
+    <section class="step step-active" id="stepSubjects" data-step="1">
       <div class="step-header">
+        <span class="step-indicator" id="stepIndicator" aria-live="polite">Step 1 of 4</span>
         <span class="step-number">1</span>
         <h2>Choose a Subject</h2>
         <p>Select the subject you want to create a worksheet for</p>
@@ -42,8 +43,9 @@
     </section>
 
     <!-- Step 2: Chapter Selection -->
-    <section class="step" id="stepChapters">
+    <section class="step" id="stepChapters" data-step="2">
       <div class="step-header">
+        <span class="step-indicator" aria-live="polite">Step 2 of 4</span>
         <button class="btn-back" id="backToSubjects">← Back</button>
         <span class="step-number">2</span>
         <h2 id="selectedSubjectTitle">Select Chapter</h2>
@@ -55,8 +57,9 @@
     </section>
 
     <!-- Step 3: Worksheet Options -->
-    <section class="step" id="stepOptions">
+    <section class="step" id="stepOptions" data-step="3">
       <div class="step-header">
+        <span class="step-indicator" aria-live="polite">Step 3 of 4</span>
         <button class="btn-back" id="backToChapters">← Back</button>
         <span class="step-number">3</span>
         <h2>Customize Your Worksheet</h2>
@@ -95,8 +98,9 @@
     </section>
 
     <!-- Step 4: Generated Worksheet -->
-    <section class="step" id="stepWorksheet">
+    <section class="step" id="stepWorksheet" data-step="4">
       <div class="step-header">
+        <span class="step-indicator" aria-live="polite">Step 4 of 4</span>
         <button class="btn-back" id="backToOptions">← Back to Options</button>
         <div class="worksheet-actions">
           <button class="btn btn-action" id="printBtn">🖨️ Print</button>
@@ -110,13 +114,13 @@
     </section>
 
     <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-overlay" id="loadingOverlay" role="dialog" aria-modal="true" aria-labelledby="loadingTitle" aria-describedby="loadingTip">
       <div class="loading-content">
         <div class="loading-spinner">
           <div class="spinner-ring"></div>
           <span class="loading-emoji">🤖</span>
         </div>
-        <h3>Creating Your Worksheet...</h3>
+        <h3 id="loadingTitle">Creating Your Worksheet...</h3>
         <p class="loading-tip" id="loadingTip">AI is crafting perfect questions for you!</p>
         <div class="loading-dots">
           <span></span><span></span><span></span>
@@ -125,12 +129,15 @@
     </div>
 
     <!-- Error Modal -->
-    <div class="modal" id="errorModal">
+    <div class="modal" id="errorModal" role="dialog" aria-modal="true" aria-labelledby="errorTitle" aria-describedby="errorMessage">
       <div class="modal-content">
         <div class="modal-icon">⚠️</div>
         <h3 id="errorTitle">Something went wrong</h3>
         <p id="errorMessage">Please try again.</p>
-        <button class="btn btn-primary" id="errorClose">Got it</button>
+        <div class="modal-actions">
+          <button class="btn btn-primary" id="errorClose">Got it</button>
+          <button class="btn btn-action btn-regenerate" id="errorRetryBtn">Retry</button>
+        </div>
       </div>
     </div>
   </main>
