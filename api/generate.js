@@ -1,7 +1,7 @@
 // Vercel Serverless Function - Gemini API Proxy
 // Handles worksheet generation requests
 
-const GEMINI_MODEL = 'gemini-1.5-flash';
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 const REQUEST_TIMEOUT_MS = 60000;
 const MAX_PROMPT_LENGTH = 100000;
 
