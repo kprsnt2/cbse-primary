@@ -4,7 +4,7 @@ import DOMPurify from 'dompurify';
 import { state } from './state.js';
 import { subjects, worksheetTypes, difficultyLevels } from './data.js';
 
-const ALLOWED_WORKSHEET_TAGS = ['div', 'span', 'p', 'h3', 'h4', 'strong', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'label'];
+const ALLOWED_WORKSHEET_TAGS = ['div', 'span', 'p', 'h3', 'h4', 'strong', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'label', 'ol', 'ul', 'li'];
 
 export function sanitizeWorksheetHtml(html) {
     return DOMPurify.sanitize(html, { ALLOWED_TAGS: ALLOWED_WORKSHEET_TAGS });
@@ -112,6 +112,21 @@ function renderSection(section, sectionIndex) {
             break;
         case 'fill_blanks':
             html += renderFillBlanks(section.questions);
+            break;
+        case 'drawing':
+            html += renderDrawing(section.questions);
+            break;
+        case 'coloring':
+            html += renderColoring(section.questions);
+            break;
+        case 'label_parts':
+            html += renderLabelParts(section.questions);
+            break;
+        case 'creative_art':
+            html += renderCreativeArt(section.questions);
+            break;
+        case 'sample_painting':
+            html += renderSamplePainting(section.questions);
             break;
         default:
             html += renderGenericQuestions(section.questions, type);
@@ -251,7 +266,7 @@ export function renderWorksheet(data, worksheetContainer) {
     });
     let html = `
     <div class="worksheet-school-header">
-      <div class="worksheet-school-name">📚 CBSE Grade 1 — Cambridge Shades</div>
+      <div class="worksheet-school-name">📚 CBSE Grade 2 — Cambridge Shades</div>
       <div class="worksheet-meta">
         <span>Subject: ${data.subject || state.selectedSubject.name}</span>
         <span>Total Marks: ${data.totalMarks || 15}</span>
@@ -281,4 +296,97 @@ export function renderWorksheet(data, worksheetContainer) {
         html += renderAnswerKey(data.sections);
     }
     worksheetContainer.innerHTML = sanitizeWorksheetHtml(html);
+}
+
+// --- Painting / Art Worksheet Renderers ---
+
+function renderDrawing(questions) {
+    if (!questions || !Array.isArray(questions)) return '';
+    return questions
+        .map(
+            (q, i) => `
+    <div class="worksheet-drawing-step">
+      <span class="drawing-step-number">Step ${i + 1}</span>
+      <span class="drawing-step-text">${stripLeadingNumber(q.question)}</span>
+    </div>
+  `
+        )
+        .join('') + `
+    <div class="worksheet-drawing-box">
+      <div class="drawing-box-label">✏️ Draw here!</div>
+    </div>`;
+}
+
+function renderColoring(questions) {
+    if (!questions || !Array.isArray(questions)) return '';
+    return `<div class="worksheet-color-guide">` +
+        questions
+            .map(
+                (q, i) => `
+    <div class="worksheet-color-item">
+      <span class="color-bullet">🎨</span>
+      <span>${stripLeadingNumber(q.question)}</span>
+    </div>
+  `
+            )
+            .join('') + `</div>`;
+}
+
+function renderLabelParts(questions) {
+    if (!questions || !Array.isArray(questions)) return '';
+    return questions
+        .map(
+            (q, i) => `
+    <div class="worksheet-label-item">
+      <span class="q-number">${i + 1}.</span>
+      <span>${stripLeadingNumber(q.question)}</span>
+      <span class="worksheet-answer-line"></span>
+    </div>
+  `
+        )
+        .join('') + `
+    <div class="worksheet-drawing-box worksheet-drawing-box-small">
+      <div class="drawing-box-label">✏️ Label the parts in your drawing above!</div>
+    </div>`;
+}
+
+function renderCreativeArt(questions) {
+    if (!questions || !Array.isArray(questions)) return '';
+    return questions
+        .map(
+            (q, i) => `
+    <div class="worksheet-creative-prompt">
+      <span class="q-number">${i + 1}.</span>
+      <span>${stripLeadingNumber(q.question)}</span>
+      <div class="worksheet-writing-lines">
+        <span class="worksheet-answer-line"></span>
+        <span class="worksheet-answer-line"></span>
+        <span class="worksheet-answer-line"></span>
+      </div>
+    </div>
+  `
+        )
+        .join('');
+}
+
+function renderSamplePainting(questions) {
+    if (!questions || !Array.isArray(questions)) return '';
+    const description = questions.map(q => stripLeadingNumber(q.question)).join(' ');
+    return `
+    <div class="worksheet-sample-painting">
+      <div class="sample-painting-header">
+        <span class="sample-painting-icon">🖼️</span>
+        <span class="sample-painting-title">Your Painting Should Look Like This!</span>
+      </div>
+      <div class="sample-painting-description">
+        <div class="sample-painting-palette">🎨</div>
+        <p>${description}</p>
+      </div>
+      <div class="sample-painting-tip">
+        <strong>💡 Tip:</strong> Read the description carefully, close your eyes and imagine the painting, then start drawing!
+      </div>
+    </div>
+    <div class="worksheet-drawing-box">
+      <div class="drawing-box-label">🎨 Now paint your version here!</div>
+    </div>`;
 }

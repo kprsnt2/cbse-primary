@@ -45,7 +45,7 @@ export function createGenerateWorksheet(deps) {
                 state.worksheetData = { title: state.selectedChapter.name, raw: data.raw };
                 worksheetContainer.innerHTML = sanitizeWorksheetHtml(`
         <div class="worksheet-school-header">
-          <div class="worksheet-school-name">📚 CBSE Grade 1 — Cambridge Shades</div>
+          <div class="worksheet-school-name">📚 CBSE Grade 2 — Cambridge Shades</div>
         </div>
         <div class="worksheet-title">${state.selectedChapter.name}</div>
         <div style="white-space: pre-wrap; font-size: 0.9rem; line-height: 1.8;">${data.raw}</div>

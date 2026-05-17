@@ -1,7 +1,7 @@
 {
   "name": "cbse-worksheet-generator",
   "version": "1.0.0",
-  "description": "CBSE 1st Grade Worksheet Generator - Cambridge Shades",
+  "description": "CBSE 2nd Grade Worksheet Generator - Cambridge Shades",
   "type": "module",
   "scripts": {
     "dev": "vite",

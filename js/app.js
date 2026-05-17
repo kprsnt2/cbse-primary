@@ -37,7 +37,7 @@ const loadingTips = [
     'Adding fun and learning together! 🎮',
     'Almost there... preparing a printable worksheet! 🖨️',
     'Checking difficulty level and question variety... 📊',
-    'Creating age-appropriate content for Grade 1... 🧒',
+    'Creating age-appropriate content for Grade 2... 🧒',
     'This usually takes 10-15 seconds... ⏳',
 ];
 
