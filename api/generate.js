@@ -52,6 +52,33 @@ async function callGemini(apiKey, prompt, signal) {
     );
 }
 
+async function generateImage(apiKey, prompt, signal) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${apiKey}`;
+    const enhancedPrompt = `${prompt} Style: Colorful children's book illustration, kid-friendly, clean outlines, simple and vibrant.`;
+
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            instances: [
+                { prompt: enhancedPrompt }
+            ],
+            parameters: {
+                sampleCount: 1,
+                aspectRatio: "1:1"
+            }
+        }),
+        signal
+    });
+
+    if (!response.ok) {
+        throw new Error(`Imagen API error: ${response.status} - ${await response.text()}`);
+    }
+
+    const data = await response.json();
+    return data?.predictions?.[0]?.bytesBase64Encoded;
+}
+
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -152,6 +179,32 @@ export default async function handler(req, res) {
                 raw: generatedText,
                 parseError: 'Failed to parse as JSON, returning raw text'
             });
+        }
+
+        try {
+            // Check if there's a sample painting section
+            const samplePaintingSection = worksheetData.sections?.find(s => s.type === 'sample_painting');
+            if (samplePaintingSection && samplePaintingSection.questions && samplePaintingSection.questions.length > 0) {
+                const imgPrompt = samplePaintingSection.questions[0].question;
+                
+                // Generate the image using Imagen 3
+                const imageController = new AbortController();
+                const imageTimeoutId = setTimeout(() => imageController.abort(), REQUEST_TIMEOUT_MS);
+                
+                try {
+                    const base64Image = await generateImage(apiKey, imgPrompt, imageController.signal);
+                    if (base64Image) {
+                        samplePaintingSection.questions[0].imageUrl = `data:image/jpeg;base64,${base64Image}`;
+                    }
+                } catch (imgError) {
+                    console.error('Failed to generate image:', imgError);
+                    // Silently fail for the image generation, the frontend will fallback to text description
+                } finally {
+                    clearTimeout(imageTimeoutId);
+                }
+            }
+        } catch (postProcessError) {
+            console.error('Error during image generation post-processing:', postProcessError);
         }
 
         return res.status(200).json({ worksheet: worksheetData });

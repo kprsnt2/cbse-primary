@@ -4,10 +4,10 @@ import DOMPurify from 'dompurify';
 import { state } from './state.js';
 import { subjects, worksheetTypes, difficultyLevels } from './data.js';
 
-const ALLOWED_WORKSHEET_TAGS = ['div', 'span', 'p', 'h3', 'h4', 'strong', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'label', 'ol', 'ul', 'li'];
+const ALLOWED_WORKSHEET_TAGS = ['div', 'span', 'p', 'h3', 'h4', 'strong', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'label', 'ol', 'ul', 'li', 'img'];
 
 export function sanitizeWorksheetHtml(html) {
-    return DOMPurify.sanitize(html, { ALLOWED_TAGS: ALLOWED_WORKSHEET_TAGS });
+    return DOMPurify.sanitize(html, { ALLOWED_TAGS: ALLOWED_WORKSHEET_TAGS, ADD_DATA_URI_TAGS: ['img'] });
 }
 
 function toRoman(num) {
@@ -372,6 +372,16 @@ function renderCreativeArt(questions) {
 function renderSamplePainting(questions) {
     if (!questions || !Array.isArray(questions)) return '';
     const description = questions.map(q => stripLeadingNumber(q.question)).join(' ');
+    const imageUrl = questions[0]?.imageUrl;
+    
+    let imageHtml = '';
+    if (imageUrl) {
+        imageHtml = `
+      <div class="sample-painting-image-container">
+        <img src="${imageUrl}" alt="Sample painting" class="sample-painting-image" />
+      </div>`;
+    }
+
     return `
     <div class="worksheet-sample-painting">
       <div class="sample-painting-header">
@@ -381,9 +391,10 @@ function renderSamplePainting(questions) {
       <div class="sample-painting-description">
         <div class="sample-painting-palette">🎨</div>
         <p>${description}</p>
+        ${imageHtml}
       </div>
       <div class="sample-painting-tip">
-        <strong>💡 Tip:</strong> Read the description carefully, close your eyes and imagine the painting, then start drawing!
+        <strong>💡 Tip:</strong> Read the description carefully, look at the picture, and then paint your version!
       </div>
     </div>
     <div class="worksheet-drawing-box">
